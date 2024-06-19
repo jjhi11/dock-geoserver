@@ -1,6 +1,53 @@
 #!/bin/bash
 echo "Welcome to GeoServer $GEOSERVER_VERSION"
 
+# Create directories and write properties files
+mkdir -p /opt/geoserver_data/jdbcconfig /opt/geoserver_data/jdbcstore
+
+cat <<EOF > /opt/geoserver_data/jdbcconfig/jdbcconfig.properties
+#Wed May 22 18:22:58 GMT 2024
+initdb=true
+pool.timeBetweenEvictionRunsMillis=15000
+import=true
+pool.poolPreparedStatements=true
+pool.testWhileIdle=true
+pool.validationQuery=SELECT now()
+pool.minIdle=4
+enabled=true
+pool.maxOpenPreparedStatements=50
+password=${DB_PASSWORD}
+jdbcUrl=jdbc:postgresql://${DB_HOST}\:5432/${DB_NAME_JDBCCONFIG}
+driverClassName=org.postgresql.Driver
+pool.maxActive=10
+initScript=jdbcconfig/scripts/initdb.postgres.sql
+debugMode=false
+pool.testOnBorrow=false
+username=${DB_USER}
+repopulate=false
+EOF
+
+cat <<EOF > /opt/geoserver_data/jdbcstore/jdbcstore.properties
+#Wed May 22 18:22:48 GMT 2024
+initdb=true
+pool.timeBetweenEvictionRunsMillis=15000
+deleteDestinationOnRename=true
+import=true
+pool.poolPreparedStatements=true
+pool.testWhileIdle=true
+pool.validationQuery=SELECT now()
+pool.minIdle=4
+ignoreDirs=data,jdbcstore,jdbcconfig,temp,tmp,logs
+enabled=true
+pool.maxOpenPreparedStatements=50
+password=${DB_PASSWORD}
+jdbcUrl=jdbc:postgresql://${DB_HOST}\:5432/${DB_NAME_JDBCSTORE}
+driverClassName=org.postgresql.Driver
+pool.maxActive=10
+initScript=jdbcstore/scripts/init.postgres.sql
+pool.testOnBorrow=false
+username=${DB_USER}
+EOF
+
 # function that can be used to copy a custom config file to the catalina conf dir
 function copy_custom_config() {
   CONFIG_FILE=$1
