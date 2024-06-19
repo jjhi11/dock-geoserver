@@ -71,13 +71,20 @@ RUN echo "Downloading GeoServer ${GS_VERSION} ${GS_BUILD}" \
     && unzip -q /tmp/geoserver.war -d /tmp/geoserver \
     && rm /tmp/geoserver.war
 
-    RUN echo "Downloading JDBCStore plugin" \
-    && wget -q -O /tmp/jdbcstore.zip $JDBC_STORE_URL \
+RUN echo "Downloading JDBCStore plugin" \
+    && wget --verbose -O /tmp/jdbcstore.zip $JDBC_STORE_URL || (echo "Download failed! URL: $JDBC_STORE_URL" && exit 1) \
     && echo "JDBCStore plugin downloaded to /tmp/jdbcstore.zip" \
     && ls -l /tmp/jdbcstore.zip \
     && echo "Unzipping JDBCStore plugin" \
-    && unzip -q -o /tmp/jdbcstore.zip -d /tmp/geoserver/WEB-INF/lib/ \
-    && rm /tmp/jdbcstore.zip
+    && unzip -q -o /tmp/jdbcstore.zip -d /webapps/geoserver/WEB-INF/lib/ || (echo "Unzip failed!" && exit 1) \
+    && rm /tmp/jdbcstore.zip \
+    && echo "Checking for init.postgres.sql script" \
+    && if find /webapps/geoserver/WEB-INF/lib/ -name init.postgres.sql; then \
+        echo "init.postgres.sql found"; \
+    else \
+        echo "init.postgres.sql is missing!"; \
+        exit 1; \
+    fi
 
 FROM tomcat as install
 
