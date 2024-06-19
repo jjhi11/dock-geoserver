@@ -73,7 +73,7 @@ RUN echo "Downloading GeoServer ${GS_VERSION} ${GS_BUILD}" \
 
 # Download and install JDBCStore plugin
 RUN echo "Downloading JDBCStore plugin" \
-    && wget -q -O /tmp/jdbcstore.zip $JDBC_STORE_URL || (echo "Download failed!" && exit 1) \
+    && curl -fSL -o /tmp/jdbcstore.zip https://build.geoserver.org/geoserver/2.25.x/community-latest/geoserver-2.25-SNAPSHOT-jdbcstore-plugin.zip || (echo "Download failed!" && exit 1) \
     && echo "JDBCStore plugin downloaded to /tmp/jdbcstore.zip" \
     && ls -l /tmp/jdbcstore.zip \
     && echo "Unzipping JDBCStore plugin" \
